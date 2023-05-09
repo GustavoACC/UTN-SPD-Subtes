@@ -1,0 +1,157 @@
+/*
+-----------CONSIGNA EJERCICIO----------------------------------
+La empresa  “UTN FRA Robotics” ganó la licitación de un proyecto,
+ y deberá Implementar un sistema que permita al usuario saber a qué estación de subte está llegando,
+  aparte  el sistema muestra las estaciones que faltan hasta llegar a destino, 
+  para ello debemos utilizar 4 LEDs y el display de 7 segmentos. 
+  Esta vez el buzzer deberá emitir un sonido diferente cada vez que se llegue a una estación.
+El sistema deberá arrancar apagado, luego de accionar el interruptor empezará y hará lo pedido.
+Deberá recorrer las estaciones comenzando por constitución y mostrará en el display 7 segmentos cuantas estaciones faltan para 
+llegar a moreno, cada vez que llega a una estación realiza un sonido el buzzer.
+
+    
+---------------------------------------------------------------------
+*/
+// C++ code
+//
+#define LEDCONSTITUCION 13
+#define LEDSANJUAN 12
+#define LEDINDEPENDENCIA 11
+#define LEMORENO 10
+#define LEDA 8
+#define LEDB 9
+#define LEDC 3
+#define LEDD 4
+#define LEDE 5
+#define LEDF 7
+#define LEDG 6
+#define DISPLAY1 A1
+#define INTERRUPTOR 2
+#define PIEZO1 A0
+
+int interruptor = 0;
+//Tiempo en segundos para cambiar de estacion
+int cambio_estacion = 2;
+int segundo = 1000;
+int contador = 1;
+bool flag = true;
+unsigned long previousMillis=0;
+int distancia = 4;
+
+void setup()
+{
+  pinMode(INTERRUPTOR, INPUT);
+  pinMode(LEDCONSTITUCION,OUTPUT);
+  pinMode(LEDSANJUAN,OUTPUT);
+  pinMode(LEDINDEPENDENCIA,OUTPUT);
+  pinMode(LEMORENO,OUTPUT);
+  pinMode(PIEZO1,OUTPUT);
+  
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  interruptor = digitalRead(INTERRUPTOR);
+  digitalWrite(PIEZO1, LOW);
+  imprimir_numero(distancia - contador);
+  encender_estacion(contador);
+  if (interruptor == HIGH) {
+    unsigned long currentMillis = millis();
+    if((unsigned long)(currentMillis - previousMillis) > (segundo * cambio_estacion)){
+      previousMillis = currentMillis;
+      if(flag){
+        contador++;
+        digitalWrite(PIEZO1, HIGH);
+      }
+      else {
+        contador--;
+        digitalWrite(PIEZO1, HIGH);
+      }
+    }
+  validar_flag(contador);
+  }
+}
+
+void validar_flag(int contador) {
+  if(contador == 1){
+    flag = true;
+  } else if (contador == 4){
+    flag = false;
+  }
+}
+       
+void encender_estacion(int numero){
+  apagar_leds();
+  switch(numero) {
+    case 1:
+    	digitalWrite(LEDCONSTITUCION, HIGH);
+    	break;
+    case 2:
+    	digitalWrite(LEDSANJUAN, HIGH);
+    	break;
+    case 3:
+    	digitalWrite(LEDINDEPENDENCIA, HIGH);
+    	break;
+    case 4:
+    	digitalWrite(LEMORENO, HIGH);
+    	break;
+  }
+}
+
+void imprimir_numero(int numero) {
+  switch(numero) {
+    case 0:
+    	digitalWrite(LEDA, HIGH);
+    	digitalWrite(LEDB, HIGH);
+    	digitalWrite(LEDC, HIGH);
+    	digitalWrite(LEDD, HIGH);
+    	digitalWrite(LEDE, HIGH);
+    	digitalWrite(LEDF, HIGH);
+    	digitalWrite(LEDG, LOW);
+    	break;
+    case 1:
+    	digitalWrite(LEDA, LOW);
+    	digitalWrite(LEDB, HIGH);
+    	digitalWrite(LEDC, HIGH);
+    	digitalWrite(LEDD, LOW);
+    	digitalWrite(LEDE, LOW);
+    	digitalWrite(LEDF, LOW);
+    	digitalWrite(LEDG, LOW);
+    	break;
+    case 2:
+    	digitalWrite(LEDA, HIGH);
+    	digitalWrite(LEDB, HIGH);
+    	digitalWrite(LEDC, LOW);
+    	digitalWrite(LEDD, HIGH);
+    	digitalWrite(LEDE, HIGH);
+    	digitalWrite(LEDF, LOW);
+    	digitalWrite(LEDG, HIGH);
+    	break;
+    case 3:
+    	digitalWrite(LEDA, HIGH);
+    	digitalWrite(LEDB, HIGH);
+    	digitalWrite(LEDC, HIGH);
+    	digitalWrite(LEDD, HIGH);
+    	digitalWrite(LEDE, LOW);
+    	digitalWrite(LEDF, LOW);
+    	digitalWrite(LEDG, HIGH);
+    	break;
+    case 4:
+    	digitalWrite(LEDA, LOW);
+    	digitalWrite(LEDB, HIGH);
+    	digitalWrite(LEDC, HIGH);
+    	digitalWrite(LEDD, LOW);
+    	digitalWrite(LEDE, LOW);
+    	digitalWrite(LEDF, HIGH);
+    	digitalWrite(LEDG, HIGH);
+    	break;
+  }
+}
+
+void apagar_leds(){
+  digitalWrite(LEDCONSTITUCION, LOW);
+  digitalWrite(LEDSANJUAN, LOW);
+  digitalWrite(LEDINDEPENDENCIA, LOW);
+  digitalWrite(LEMORENO, LOW);
+}
